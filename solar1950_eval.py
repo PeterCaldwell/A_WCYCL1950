@@ -4,6 +4,8 @@ Compare model output before and after updating
 solar file.
 """
 
+#IMPORT STUFF:
+#=======================
 from netCDF4 import Dataset
 import pylab as pl
 import numpy as np

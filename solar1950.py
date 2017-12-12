@@ -81,7 +81,7 @@ for dname, the_dim in fi.dimensions.iteritems():
     if dname not in skip_dims:
         fo.createDimension(dname, len(the_dim))
 
-#TRANSFER VARS THAT DON'T NEED CHANGING TO NEW FILE:
+#TRANSFER VARS:
 #===============
 # Copy variables. Code from https://gist.github.com/guziy/8543562
 for v_name, varin in fi.variables.iteritems():
