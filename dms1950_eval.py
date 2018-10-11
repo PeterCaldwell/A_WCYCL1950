@@ -9,14 +9,58 @@ from netCDF4 import Dataset
 import pylab as pl
 import numpy as np
 
-#this is the original file
+#COMPARE OLD AND NEW MODEL OUTPUT
+#====================================
+#model output before making DMS change
+f_orig=Dataset('/global/cscratch1/sd/petercal/ACME_simulations/edison.A_WCYCL1950.1850_test1.ne30_oECv3_ICG/run/edison.A_WCYCL1950.1850_test1.ne30_oECv3_ICG.cam.h0.0001-01-01-00000-rgr.nc')
+
+#model output after making DMS change
+f_new=Dataset('/global/cscratch1/sd/petercal/ACME_simulations/edison.A_WCYCL1950.1950_dms2.ne30_oECv3_ICG/run/edison.A_WCYCL1950.1950_dms2.ne30_oECv3_ICG.cam.h0.0001-01-01-00000-rgr.nc')
+
+
+vars=['SFDMS','DMS_SRF','AQ_DMS','DF_DMS']
+
+for var in vars:
+    vo=f_orig.variables[var]
+    vn=f_new.variables[var]
+
+    lats=f_orig.variables['lat'][:]
+    lons=f_orig.variables['lon'][:]
+    LONS,LATS=pl.meshgrid(lons,lats)
+
+    if len(vo[:].squeeze().shape)==3: #time,lat,lon
+        pl.figure()
+        pl.subplot(2,1,1)
+        pl.pcolor(LONS,LATS,vo[-1])
+        pl.colorbar()
+        pl.title(vo.long_name+' orig')
+
+        pl.subplot(2,1,2)
+        pl.pcolor(LONS,LATS,vn[-1])
+        pl.colorbar()
+        pl.title(vn.long_name+' new')
+
+        if var=='SFDMS':
+            pl.savefig(var+'.png')
+
+    else:
+        print "Don't know how to plot "+var+' w/ dims = '+str(len(vo[:].squeeze().shape))
+
+#leave open for debugging.
+#f_orig.close()
+#f_new.close()
+
+
+#COMPARE OLD AND NEW INPUTDATA FILES:
+#=====================================
+#this is the original inputdata file
 fo=Dataset('/project/projectdirs/acme/inputdata/atm/cam/chem/trop_mozart_aero/emis/DMSflux.1850.1deg_latlon_conserv.POPmonthlyClimFromACES4BGC_c20160416.nc')
 
-#this is my new file
+#this is my new inputdata file
 fn=Dataset('/global/cscratch1/sd/petercal/junk/CMIP6/DMSflux.1950.1deg_latlon_conserv.POPmonthlyClimFromACES4BGC_c20171210.nc')
 
 #AUTOMATED CHECK OF ALL VARIABLES:
-#=================================
+#---------------------------------
 for var in fo.variables.keys():
     try:
         df=np.sum(np.abs(fo.variables[var][:]-fn.variables[var][:]))
